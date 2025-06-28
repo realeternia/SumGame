@@ -7,14 +7,29 @@ using TMPro;
 public class MainController : MonoBehaviour
 {
     public TMP_Text questionText;
+    public TMP_Text timerText;
+    public TMP_Text resultText;
+    public Button restartButton;
     public GameObject[] panels;
     private int correctAnswer;
+    private AudioSource audioSource; //音源
+    public AudioClip soundOk; //音效文件
+    public AudioClip soundFail; //音效文件
+    private float elapsedTime = 0f;
+    private int correctCount = 0;
+    private int wrongCount = 0;
 
     // Start is called before the first frame update
     void Start()
     {
         BindUI();
         GenerateQuestion();
+        audioSource = GetComponent<AudioSource>();
+        elapsedTime = 0f;
+        correctCount = 0;
+        wrongCount = 0;
+        UpdateResultText();
+        restartButton.onClick.AddListener(RestartGame);
     }
 
     private void BindUI()
@@ -22,11 +37,6 @@ public class MainController : MonoBehaviour
         // 创建答案按钮
         for (int i = 0; i < 5; i++)
         {
-            GameObject buttonObj = new GameObject("AnswerButton" + i);
-            // 确保按钮在 Canvas 下
-            if (transform.GetComponentInParent<Canvas>()) {
-                buttonObj.transform.SetParent(transform.GetComponentInParent<Canvas>().transform);
-            }
             var answerButton = panels[i].GetComponent<Button>();
             answerButton.onClick.AddListener(() => CheckAnswer(answerButton));
         }
@@ -82,18 +92,44 @@ public class MainController : MonoBehaviour
 
     private void CheckAnswer(Button button)
     {
-        Debug.Log("click");
         int selectedAnswer = int.Parse(button.GetComponentInChildren<TMP_Text>().text);
         if (selectedAnswer == correctAnswer)
         {
-            // 答案正确，生成新问题
-            GenerateQuestion();
+            audioSource.Stop();
+            audioSource.PlayOneShot(soundOk);
+            correctCount++;
         }
+        else
+        {
+            audioSource.Stop();
+            audioSource.PlayOneShot(soundFail);
+            wrongCount++;
+        }
+        UpdateResultText();
+        GenerateQuestion();
+    }
+
+    private void UpdateResultText()
+    {
+        resultText.text = $"{correctCount}对{wrongCount}错";
+    }
+
+    private void RestartGame()
+    {
+        elapsedTime = 0f;
+        correctCount = 0;
+        wrongCount = 0;
+        UpdateResultText();
+        GenerateQuestion();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        elapsedTime += Time.deltaTime;
+        int hours = Mathf.FloorToInt(elapsedTime / 3600);
+        int minutes = Mathf.FloorToInt((elapsedTime % 3600) / 60);
+        int seconds = Mathf.FloorToInt(elapsedTime % 60);
+        timerText.text = string.Format("{0:00}:{1:00}:{2:00}", hours, minutes, seconds);
     }
 }
