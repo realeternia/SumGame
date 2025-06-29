@@ -21,6 +21,12 @@ public class MainController : MonoBehaviour
     private int correctCount = 0;
     private int wrongCount = 0;
     private bool isMsgBoxShowing = false;
+    private bool isGamePaused = false; // 新增游戏暂停状态
+
+    public Button difficultAddButton;
+    public Button difficultMinorButton;
+    public TMP_Text difficultText;
+    private int difficultyLevel = 3;
 
     // Start is called before the first frame update
     void Start()
@@ -34,6 +40,9 @@ public class MainController : MonoBehaviour
         isMsgBoxShowing = false;
         UpdateResultText();
         restartButton.onClick.AddListener(RestartGame);
+        difficultAddButton.onClick.AddListener(IncreaseDifficulty);
+        difficultMinorButton.onClick.AddListener(DecreaseDifficulty);
+        UpdateDifficultyText();
     }
 
     private void BindUI()
@@ -48,6 +57,7 @@ public class MainController : MonoBehaviour
 
     private void GenerateQuestion()
     {
+        if (isGamePaused) return; // 游戏暂停时不生成新问题
         int num1 = Random.Range(1, 10);
         int num2 = Random.Range(1, 10);
         int op = Random.Range(0, 2);
@@ -96,6 +106,7 @@ public class MainController : MonoBehaviour
 
     private void CheckAnswer(Button button)
     {
+        if (isGamePaused) return; // 游戏暂停时不检查答案
         int selectedAnswer = int.Parse(button.GetComponentInChildren<TMP_Text>().text);
         if (selectedAnswer == correctAnswer)
         {
@@ -134,17 +145,37 @@ public class MainController : MonoBehaviour
         isMsgBoxShowing = false;
         UpdateResultText();
         GenerateQuestion();
+        isGamePaused = false; // 点击重启按钮恢复游戏
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!isMsgBoxShowing) {
+        if (!isMsgBoxShowing && !isGamePaused) {
             elapsedTime += Time.deltaTime;
             int hours = Mathf.FloorToInt(elapsedTime / 3600);
             int minutes = Mathf.FloorToInt((elapsedTime % 3600) / 60);
             int seconds = Mathf.FloorToInt(elapsedTime % 60);
             timerText.text = string.Format("{0:00}:{1:00}:{2:00}", hours, minutes, seconds);
         }
+    }
+
+    private void IncreaseDifficulty()
+    {
+        difficultyLevel = Mathf.Min(difficultyLevel + 1, 10);
+        UpdateDifficultyText();
+        isGamePaused = true; // 点击难度提升按钮暂停游戏
+    }
+
+    private void DecreaseDifficulty()
+    {
+        difficultyLevel = Mathf.Max(difficultyLevel - 1, 1);
+        UpdateDifficultyText();
+        isGamePaused = true; // 点击难度降低按钮暂停游戏
+    }
+
+    private void UpdateDifficultyText()
+    {
+        difficultText.text = $"{difficultyLevel}级";
     }
 }
