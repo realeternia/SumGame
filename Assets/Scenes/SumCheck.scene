@@ -1950,9 +1950,9 @@ MonoBehaviour:
   soundOk: {fileID: 8300000, guid: f7360041f640fd04dbb1ba0a884306bf, type: 3}
   soundFail: {fileID: 8300000, guid: f75c2b83818486b4a843c0455473c5df, type: 3}
   MsgBox: {fileID: 247553343}
-  difficultAddButton: {fileID: 0}
-  difficultMinorButton: {fileID: 0}
-  difficultText: {fileID: 0}
+  difficultAddButton: {fileID: 486273790}
+  difficultMinorButton: {fileID: 1989491859}
+  difficultText: {fileID: 977538868}
 --- !u!82 &1147126092
 AudioSource:
   m_ObjectHideFlags: 0

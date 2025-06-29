@@ -57,37 +57,128 @@ public class MainController : MonoBehaviour
 
     private void GenerateQuestion()
     {
-        if (isGamePaused) return; // 游戏暂停时不生成新问题
-        int num1 = Random.Range(1, 10);
-        int num2 = Random.Range(1, 10);
-        int op = Random.Range(0, 2);
         string question = "";
-        if (op == 0)
-        {
-            correctAnswer = num1 + num2;
-            question = $"{num1} + {num2} = ?";
+        List<int> numbers = new List<int>();
+        List<char> operators = new List<char>();
+        int maxNumber = 10;
+        int maxNumber2 = 10; // maxNUmber2是30%概率出现的数字上限，其他70%按maxNumber
+        int numberCount = 2;
+        bool reverseQuestion = false;
+
+        // 根据难度设置参数
+        if (difficultyLevel == 1) {
+            maxNumber = 10;
+        } else if (difficultyLevel == 2) {
+            maxNumber = 10;
+        } else if (difficultyLevel == 3) {
+            maxNumber = 10;
+            maxNumber2 = 20;
+        } else if (difficultyLevel == 4) {
+            maxNumber = 10;
+            maxNumber2 = 20;
+        } else if (difficultyLevel == 5) {
+            maxNumber = 20;
+            maxNumber2 = 20;
+            if(Random.Range(1, 100) < 30) numberCount = 3;
+        } else if (difficultyLevel == 6) {
+            maxNumber = 20;
+            maxNumber2 = 50;
+            if(Random.Range(1, 100) < 30) numberCount = 3;
+        } else if (difficultyLevel == 7) {
+            maxNumber = 50;
+            maxNumber2 = 50;
+            if(Random.Range(1, 100) < 30) numberCount = 3;
+            reverseQuestion = Random.Range(0, 4) == 0;
+        } else if (difficultyLevel == 8) {
+            maxNumber = 50;
+            maxNumber2 = 80;
+            if(Random.Range(1, 100) < 30) numberCount = 3;
+            reverseQuestion = Random.Range(0, 2) == 0;
+        } else if (difficultyLevel == 9) {
+            maxNumber = 80;
+            maxNumber2 = 30;
+            if(Random.Range(1, 100) < 40) numberCount = 3;
+            reverseQuestion = Random.Range(0, 2) == 0;            
+        } else if (difficultyLevel == 10) {
+            maxNumber = 100;
+            maxNumber2 = 50;
+            if(Random.Range(1, 100) < 24) numberCount = 4;
+            reverseQuestion = Random.Range(0, 2) == 0;
+        }
+
+        // 生成数字
+        for (int i = 0; i < numberCount; i++) {
+            int upperBound = Random.Range(1, 101) <= 30 ? maxNumber2 : maxNumber;
+            numbers.Add(Random.Range(1, upperBound + 1));
+        }
+
+        // 生成运算符
+        if (difficultyLevel == 1) {
+            for (int i = 0; i < numberCount - 1; i++) {
+                operators.Add('+');
+            }
+        } else {
+            for (int i = 0; i < numberCount - 1; i++) {
+                operators.Add(Random.Range(0, 2) == 0 ? '+' : '-');
+            }
+        }
+
+        // 当难度为3且有减法运算时，保证大数在前
+        if (difficultyLevel <= 3) {
+            for (int i = 0; i < operators.Count; i++) {
+                if (operators[i] == '-') {
+                    if (numbers[i] < numbers[i + 1]) {
+                        int temp = numbers[i];
+                        numbers[i] = numbers[i + 1];
+                        numbers[i + 1] = temp;
+                    }
+                }
+            }
+        }
+
+        // 计算正确答案
+        correctAnswer = numbers[0];
+        for (int i = 0; i < operators.Count; i++) {
+            if (operators[i] == '+') {
+                correctAnswer += numbers[i + 1];
+            } else {
+                correctAnswer -= numbers[i + 1];
+            }
+        }
+
+        if (!reverseQuestion) {
+            // 生成普通问题
+            question = numbers[0].ToString();
+            for (int i = 0; i < operators.Count; i++) {
+                question += " " + operators[i] + " " + numbers[i + 1];
+            }
+            question += " = ?";
         }
         else
         {
-            correctAnswer = num1 - num2;
-            question = $"{num1} - {num2} = ?";
+            question = "?";
+            for (int i = 0; i < operators.Count; i++) {
+                if(operators[i] == '+')
+                    question += " - " + numbers[i + 1];
+                else
+                    question += " + " + numbers[i + 1];
+            }
+            question += " = " + numbers[0];
         }
+
         questionText.text = question;
 
         // 设置答案选项
         List<int> answers = new List<int>();
         answers.Add(correctAnswer);
-        while (answers.Count < 5)
-        {
-            int wrongAnswer = correctAnswer + Random.Range(-5, 6);
-            if (wrongAnswer != correctAnswer && !answers.Contains(wrongAnswer))
-            {
+        while (answers.Count < 5) {
+            int wrongAnswer = correctAnswer + Random.Range(-10, 11);
+            if (wrongAnswer != correctAnswer && !answers.Contains(wrongAnswer)) {
                 answers.Add(wrongAnswer);
             }
         }
         answers = ShuffleList(answers);
-        for (int i = 0; i < 5; i++)
-        {
+        for (int i = 0; i < 5; i++) {
             panels[i].GetComponentInChildren<TMP_Text>().text = answers[i].ToString();
         }
     }
@@ -121,8 +212,6 @@ public class MainController : MonoBehaviour
             wrongCount++;
         }
         UpdateResultText();
-        GenerateQuestion();
-
         if(correctCount + wrongCount >= 20)
         {    
             isMsgBoxShowing = true;
@@ -130,6 +219,7 @@ public class MainController : MonoBehaviour
                 RestartGame();
             });
         }
+        GenerateQuestion();
     }
 
     private void UpdateResultText()
