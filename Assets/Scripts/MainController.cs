@@ -16,9 +16,11 @@ public class MainController : MonoBehaviour
     private AudioSource audioSource; //音源
     public AudioClip soundOk; //音效文件
     public AudioClip soundFail; //音效文件
+    public MyMessageBox MsgBox;
     private float elapsedTime = 0f;
     private int correctCount = 0;
     private int wrongCount = 0;
+    private bool isMsgBoxShowing = false;
 
     // Start is called before the first frame update
     void Start()
@@ -29,6 +31,7 @@ public class MainController : MonoBehaviour
         elapsedTime = 0f;
         correctCount = 0;
         wrongCount = 0;
+        isMsgBoxShowing = false;
         UpdateResultText();
         restartButton.onClick.AddListener(RestartGame);
     }
@@ -108,6 +111,14 @@ public class MainController : MonoBehaviour
         }
         UpdateResultText();
         GenerateQuestion();
+
+        if(correctCount + wrongCount >= 20)
+        {    
+            isMsgBoxShowing = true;
+            MsgBox.Show("恭喜你完成了20题\n"+resultText.text+"\n耗时"+timerText.text, () => {
+                RestartGame();
+            });
+        }
     }
 
     private void UpdateResultText()
@@ -120,6 +131,7 @@ public class MainController : MonoBehaviour
         elapsedTime = 0f;
         correctCount = 0;
         wrongCount = 0;
+        isMsgBoxShowing = false;
         UpdateResultText();
         GenerateQuestion();
     }
@@ -127,10 +139,12 @@ public class MainController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        elapsedTime += Time.deltaTime;
-        int hours = Mathf.FloorToInt(elapsedTime / 3600);
-        int minutes = Mathf.FloorToInt((elapsedTime % 3600) / 60);
-        int seconds = Mathf.FloorToInt(elapsedTime % 60);
-        timerText.text = string.Format("{0:00}:{1:00}:{2:00}", hours, minutes, seconds);
+        if (!isMsgBoxShowing) {
+            elapsedTime += Time.deltaTime;
+            int hours = Mathf.FloorToInt(elapsedTime / 3600);
+            int minutes = Mathf.FloorToInt((elapsedTime % 3600) / 60);
+            int seconds = Mathf.FloorToInt(elapsedTime % 60);
+            timerText.text = string.Format("{0:00}:{1:00}:{2:00}", hours, minutes, seconds);
+        }
     }
 }

@@ -9,6 +9,7 @@ public class MyMessageBox : MonoBehaviour
     public GameObject dialogBox; // 对话框 GameObject
     public TMP_Text messageText;    // 消息文本
     public Button okButton;     // 确定按钮
+    private System.Action onOkCallback;
 
     void Start()
     {
@@ -17,9 +18,10 @@ public class MyMessageBox : MonoBehaviour
     }
 
     // 显示对话框
-    public void Show(string message)
+    public void Show(string message, System.Action callback = null)
     {
         messageText.text = message;
+        onOkCallback = callback;
         dialogBox.SetActive(true);
     }
 
@@ -28,5 +30,6 @@ public class MyMessageBox : MonoBehaviour
     {
         dialogBox.SetActive(false);
         Debug.Log("用户点击了确定");
+        onOkCallback?.Invoke();
     }
 }

@@ -557,7 +557,7 @@ GameObject:
   - component: {fileID: 462228205}
   m_Layer: 5
   m_HasEditorInfo: 1
-  m_Name: Text (TMP)
+  m_Name: TextTime
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1321,7 +1321,7 @@ GameObject:
   - component: {fileID: 1112359099}
   m_Layer: 5
   m_HasEditorInfo: 1
-  m_Name: Button
+  m_Name: ButtonRestart
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1556,6 +1556,7 @@ MonoBehaviour:
   - {fileID: 715187215}
   soundOk: {fileID: 8300000, guid: f7360041f640fd04dbb1ba0a884306bf, type: 3}
   soundFail: {fileID: 8300000, guid: f75c2b83818486b4a843c0455473c5df, type: 3}
+  MsgBox: {fileID: 247553343}
 --- !u!82 &1147126092
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1935,7 +1936,7 @@ GameObject:
   - component: {fileID: 1409488820}
   m_Layer: 5
   m_HasEditorInfo: 1
-  m_Name: Text (TMP) (1)
+  m_Name: TextResult
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
